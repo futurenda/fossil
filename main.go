@@ -31,6 +31,13 @@ func main() {
 		{
 			Name:  "build",
 			Usage: "fossil build [FILE]...",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "package",
+					Value: "main",
+					Usage: "package name",
+				},
+			},
 			Action: func(c *cli.Context) error {
 				files := make(map[string][]byte, 0)
 				for _, pattern := range c.Args() {
