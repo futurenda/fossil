@@ -1,3 +1,3 @@
 # Fossil
 
-Embedding text file into compiled executable.
+Embedding text file into Go source code.
