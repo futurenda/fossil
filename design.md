@@ -1,4 +1,14 @@
-# Design Goals
+# Fossil
+
+An exercise for Casey.
+
+- Goroutines (Section 8.1)
+- Channels (Section 8.4)
+- Multiplexing with select (Section 8.7)
+- Interfaces (Chapter 7)
+- Packages and the Go Tool (Chapter 10)
+- Methods (Chapter 6)
+- BDD
 
 ## CLI
 
@@ -7,29 +17,6 @@
 - `--verbose`
 
 Show verbose logs and update current status (eg. progress bar)
-
-## Example
-
-```bash
-tree
-
-.
-├── design.md
-├── examples
-│   ├── sql
-│   │   └── select.sql
-│   └── tree
-│       └── tree.go
-├── fossil
-├── LICENSE
-├── main.go
-├── README.md
-└── tree.go
-
-```
-
-```bash
-```
 
 ## Concurrent IO
 
@@ -42,10 +29,15 @@ tree
 
 ## Tests
 
-Use Ginkgo to do BDD testing.
+- Dependency Injection
+- Test using io.ReadCloser interface
+- Test using io.WriteCloser interface
 
-https://github.com/onsi/ginkgo
+## Tools
+
+- golang/dep as dependency tool
+- onsi/ginkgo as BDD testing framework
 
 ## References
 
-- The Go Programming
+- The Go Programming Language
