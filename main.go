@@ -8,10 +8,24 @@ import (
 
 	"io/ioutil"
 
-	"gopkg.in/urfave/cli.v1"
+	"fmt"
+	"strconv"
 	"strings"
 	"text/template"
+
+	"gopkg.in/urfave/cli.v1"
 )
+
+func processContents(contents []byte, bytesMode bool) string {
+	if !bytesMode {
+		c := string(contents)
+		if !strings.Contains(c, "`") {
+			return fmt.Sprintf("`%s`", c)
+		}
+		return fmt.Sprintf("%s", strconv.Quote(string(contents)))
+	}
+	return "TODO"
+}
 
 func main() {
 	flag.Parse()
@@ -37,6 +51,9 @@ func main() {
 					Value: "main",
 					Usage: "package name",
 				},
+				cli.BoolFlag{
+					Name: "bytes",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				files := make(map[string]string)
@@ -59,12 +76,12 @@ func main() {
 							return err
 						}
 						key := strings.ToTitle(strings.Split(file, ".")[0])
-						files[key] = string(contents)
+						files[key] = processContents(contents, c.Bool("bytes"))
 					}
 				}
 				const tpl = `package {{.PackageName}}
 {{range $k, $v := .Files}}
-const {{$k}} = ` + "`{{$v}}`" + `
+const {{$k}} = {{$v}}
 {{end}}`
 				t := template.Must(template.New("fossil").Parse(tpl))
 				t.Execute(os.Stdout, map[string]interface{}{
