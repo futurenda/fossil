@@ -6,11 +6,10 @@ import (
 
 	"flag"
 
-	"log"
-
 	"io/ioutil"
 
 	"gopkg.in/urfave/cli.v1"
+	"text/template"
 )
 
 func main() {
@@ -39,7 +38,7 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				files := make(map[string][]byte, 0)
+				files := make(map[string]string)
 				for _, pattern := range c.Args() {
 					matches, err := filepath.Glob(pattern)
 					if err != nil {
@@ -54,13 +53,22 @@ func main() {
 						if fileMode.IsDir() {
 							continue
 						}
-						files[file], err = ioutil.ReadFile(file)
+						contents, err := ioutil.ReadFile(file)
 						if err != nil {
 							return err
 						}
-						log.Printf("File: %v, Size: %v bytes", file, fileInfo.Size())
+						files[file] = string(contents)
 					}
 				}
+				const tpl = `package {{.PackageName}}
+{{range $file, $contents := .Files}}
+const {{$file}} = ` + "`{{$contents}}`" + `
+{{end}}`
+				t := template.Must(template.New("fossil").Parse(tpl))
+				t.Execute(os.Stdout, map[string]interface{}{
+					"PackageName": c.String("package"),
+					"Files":       files,
+				})
 				return nil
 			},
 		},
