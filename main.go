@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 
 	"gopkg.in/urfave/cli.v1"
+	"strings"
 	"text/template"
 )
 
@@ -57,12 +58,13 @@ func main() {
 						if err != nil {
 							return err
 						}
-						files[file] = string(contents)
+						key := strings.ToTitle(strings.Split(file, ".")[0])
+						files[key] = string(contents)
 					}
 				}
 				const tpl = `package {{.PackageName}}
-{{range $file, $contents := .Files}}
-const {{$file}} = ` + "`{{$contents}}`" + `
+{{range $k, $v := .Files}}
+const {{$k}} = ` + "`{{$v}}`" + `
 {{end}}`
 				t := template.Must(template.New("fossil").Parse(tpl))
 				t.Execute(os.Stdout, map[string]interface{}{
