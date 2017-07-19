@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"fmt"
 )
 
 func getFileName(s string) string {
@@ -14,27 +15,48 @@ func getFileName(s string) string {
 func generateContent(info FileInfoWithPath) string {
 	content, _ := ioutil.ReadFile(info.Path)
 	output := "package " + info.Folder +
-		"\n\nconst " + strings.Title(getFileName(info.Info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\""
+		"\n\nconst " + strings.Title(getFileName(info.Info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\"\n"
 	return output
 }
 
-func generateGoFile(info []FileInfoWithPath) []string {
-	var result []string
+func generateGoFile(info []FileInfoWithPath, paras Paras) {
 	for _, i := range info {
-		if filepath.Ext(i.Info.Name()) == "sql" {
-			content := generateContent(i)
-			// todo output dir
-			err := ioutil.WriteFile(i.Path+".go", []byte(content), 0744)
-			if err != nil {
-				panic(err)
-			}
+		content := generateContent(i)
+		outputPath := paras.OutputPath
+		// todo Windows \
+		if outputPath[len(outputPath)-1:] == "/" {
+			outputPath = outputPath[0:len(outputPath) - 1]
 		}
+		outputPath += i.RelativePath + "/" + i.Info.Name() + ".go"
+
+		if paras.Verbose {
+			fmt.Println(outputPath)
+		}
+
+		err := ioutil.WriteFile(outputPath, []byte(content), 0744)
+		if err != nil {
+			panic(err)
+		}
+
 	}
-	return result
 }
 
-func FossilDir(dir string) {
+type Paras struct {
+	Dir string
+	OutputPath string
+	Verbose    bool
+}
+
+func FossilDir(paras Paras) {
 	// todo flags
-	info := lsInfo(dir)
-	generateGoFile(info)
+	sqlFileFilter := func(s string) bool {
+		return filepath.Ext(s) == ".sql"
+	}
+	info := Ls(paras.Dir, sqlFileFilter, paras.Verbose)
+	if paras.Verbose {
+		fmt.Printf("Found %d files\n", len(info))
+
+	}
+
+	generateGoFile(info, paras)
 }
