@@ -6,5 +6,5 @@ import (
 
 func main() {
 	//proc.Ls("./input")
-	proc.FossilDir("./examples/input")
+	proc.FossilDir("./examples/input/")
 }

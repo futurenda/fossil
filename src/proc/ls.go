@@ -9,13 +9,13 @@ import (
 )
 
 type FileInfoWithPath struct {
-	path   string
-	folder string
-	info   os.FileInfo
+	Path   string
+	Folder string
+	Info   os.FileInfo
 }
 
 func (f FileInfoWithPath) String() string {
-	return fmt.Sprintf("path: %s, folder: %s, isDir: %t", f.path, f.folder, f.info.IsDir())
+	return fmt.Sprintf("path: %s, folder: %s, isDir: %t", f.Path, f.Folder, f.Info.IsDir())
 }
 
 func ls(dir string) []os.FileInfo {
@@ -28,11 +28,6 @@ func Ls(dir string) []FileInfoWithPath {
 	return info
 }
 
-func lsInfo(dir string) []FileInfoWithPath {
-	folder := getFolderNameFromDir(dir)
-	return lsInfoInner(dir, folder)
-}
-
 func getFolderNameFromDir(dir string) string{
 	folder := dir
 	// todo windows .\ ?
@@ -40,13 +35,18 @@ func getFolderNameFromDir(dir string) string{
 		folder, _ = filepath.Abs(".")
 	}
 
-	f := strings.Split(dir, "/")
+	f := strings.Split(folder, "/")
 	// Windows Path g:\dir\dir
 	if len(f) == 1 {
-		f = strings.Split(dir, "\\")
+		f = strings.Split(folder, "\\")
 	}
 	folder = f[len(f)-1]
 	return folder
+}
+
+func lsInfo(dir string) []FileInfoWithPath {
+	folder := getFolderNameFromDir(dir)
+	return lsInfoInner(dir, folder)
 }
 
 func lsInfoInner(dir, folder string) []FileInfoWithPath {
@@ -57,7 +57,9 @@ func lsInfoInner(dir, folder string) []FileInfoWithPath {
 	if dir == "." || dir == "./" {
 		dir = ""
 	} else {
-		dir = dir + "/"
+		if dir[len(dir) - 1:] != "/"{
+			dir = dir + "/"
+		}
 	}
 
 	for _, f := range files {
