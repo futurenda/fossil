@@ -23,7 +23,7 @@ func generateGoFile(info []FileInfoWithPath) []string{
 	for _, i := range info {
 		content := generateContent(i)
 		// todo output dir
-		err := ioutil.WriteFile(i.path, []byte(content), 0744)
+		err := ioutil.WriteFile(i.path + ".go", []byte(content), 0744)
 		if err != nil {
 			panic(err)
 		}
