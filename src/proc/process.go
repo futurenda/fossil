@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"fmt"
+	"os"
 )
 
 func getFileName(s string) string {
@@ -19,30 +20,47 @@ func generateContent(info FileInfoWithPath) string {
 	return output
 }
 
-func generateGoFile(info []FileInfoWithPath, paras Paras) {
-	for _, i := range info {
-		content := generateContent(i)
-		outputPath := paras.OutputPath
-		// todo Windows \
-		if outputPath[len(outputPath)-1:] == "/" {
-			outputPath = outputPath[0:len(outputPath) - 1]
-		}
-		outputPath += i.RelativePath + "/" + i.Info.Name() + ".go"
+func generateGoFile(i FileInfoWithPath, paras Paras) {
+	content := generateContent(i)
+	outputPath := paras.OutputPath
+	// todo Windows \
+	if outputPath[len(outputPath)-1:] == "/" {
+		outputPath = outputPath[0:len(outputPath)-1]
+	}
+	outputFolder := outputPath + i.RelativePath
+	outputPath = outputFolder + "/" + i.Info.Name() + ".go"
 
+	if paras.Verbose {
+		fmt.Println("Output to path: " + outputPath)
+	}
+
+	_, err := os.Stat(outputFolder)
+	if os.IsNotExist(err){
 		if paras.Verbose {
-			fmt.Println(outputPath)
+			fmt.Println("Folder: " + outputFolder + " doesn't exist, creating folder.")
 		}
 
-		err := ioutil.WriteFile(outputPath, []byte(content), 0744)
-		if err != nil {
+		// todo should make sure that the folder creating won't conflict
+		err = os.MkdirAll(outputFolder, 0744)
+		if err != nil{
 			panic(err)
 		}
+	}
 
+	err = ioutil.WriteFile(outputPath, []byte(content), 0744)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func generateAllFile(info []FileInfoWithPath, paras Paras) {
+	for _, i := range info {
+		generateGoFile(i, paras)
 	}
 }
 
 type Paras struct {
-	Dir string
+	Dir        string
 	OutputPath string
 	Verbose    bool
 }
@@ -58,5 +76,5 @@ func FossilDir(paras Paras) {
 
 	}
 
-	generateGoFile(info, paras)
+	generateAllFile(info, paras)
 }
