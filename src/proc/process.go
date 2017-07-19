@@ -14,7 +14,10 @@ func getFileName(s string) string {
 }
 
 func generateContent(info FileInfoWithPath) string {
-	content, _ := ioutil.ReadFile(info.Path)
+	content, err := ioutil.ReadFile(info.Path)
+	if err != nil {
+		panic(err)
+	}
 	output := "package " + info.Folder +
 		"\n\nconst " + strings.Title(getFileName(info.Info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\"\n"
 	return output
@@ -35,27 +38,38 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 	}
 
 	_, err := os.Stat(outputFolder)
-	if os.IsNotExist(err){
+	if os.IsNotExist(err) {
 		if paras.Verbose {
 			fmt.Println("Folder: " + outputFolder + " doesn't exist, creating folder.")
 		}
 
 		// todo should make sure that the folder creating won't conflict
-		err = os.MkdirAll(outputFolder, 0744)
-		if err != nil{
+		err = os.MkdirAll(outputFolder, 0644)
+		if err != nil {
 			panic(err)
 		}
 	}
 
-	err = ioutil.WriteFile(outputPath, []byte(content), 0744)
+	err = ioutil.WriteFile(outputPath, []byte(content), 0644)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func generateAllFile(info []FileInfoWithPath, paras Paras) {
+	pool := make(chan bool, paras.Limit)
+
+	done := make(chan int)
 	for _, i := range info {
-		generateGoFile(i, paras)
+		pool <- true
+		go func(info FileInfoWithPath) {
+			generateGoFile(info, paras)
+			<-pool
+			done <- 1
+		}(i)
+	}
+	for i := 0; i < len(info); i++ {
+		<-done
 	}
 }
 
@@ -63,6 +77,7 @@ type Paras struct {
 	Dir        string
 	OutputPath string
 	Verbose    bool
+	Limit      int
 }
 
 func FossilDir(paras Paras) {
@@ -75,6 +90,5 @@ func FossilDir(paras Paras) {
 		fmt.Printf("Found %d files\n", len(info))
 
 	}
-
 	generateAllFile(info, paras)
 }

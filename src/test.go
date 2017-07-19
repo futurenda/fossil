@@ -6,5 +6,5 @@ import (
 
 func main() {
 	//proc.Ls("./input")
-	proc.FossilDir(proc.Paras{"./examples/input/", "./output", true})
+	proc.FossilDir(proc.Paras{"./examples/input/", "./examples/output", true, 16})
 }

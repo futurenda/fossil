@@ -20,7 +20,10 @@ func (f FileInfoWithPath) String() string {
 }
 
 func lsOSFileInfo(dir string) []os.FileInfo {
-	files, _ := ioutil.ReadDir(dir)
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		panic(err)
+	}
 	return files
 }
 
@@ -33,7 +36,11 @@ func getFolderNameFromDir(dir string) string{
 	folder := dir
 	// todo windows .\ ?
 	if dir == "." || dir == "./" {
-		folder, _ = filepath.Abs(".")
+		var err error
+		folder, err = filepath.Abs(".")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	f := strings.Split(folder, "/")
