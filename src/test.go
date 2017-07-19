@@ -6,7 +6,5 @@ import (
 
 func main() {
 	//proc.Ls("./input")
-	for _, i := range proc.FossilDir("./examples/input") {
-		println(i)
-	}
+	proc.FossilDir("./examples/input")
 }

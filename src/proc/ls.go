@@ -24,11 +24,16 @@ func ls(dir string) []os.FileInfo {
 }
 
 func Ls(dir string) []FileInfoWithPath {
-	info := ls_info(dir)
+	info := lsInfo(dir)
 	return info
 }
 
-func ls_info(dir string) []FileInfoWithPath {
+func lsInfo(dir string) []FileInfoWithPath {
+	folder := getFolderNameFromDir(dir)
+	return lsInfoInner(dir, folder)
+}
+
+func getFolderNameFromDir(dir string) string{
 	folder := dir
 	// todo windows .\ ?
 	if dir == "." || dir == "./" {
@@ -36,15 +41,15 @@ func ls_info(dir string) []FileInfoWithPath {
 	}
 
 	f := strings.Split(dir, "/")
-	if len(f) == 0 {
+	// Windows Path g:\dir\dir
+	if len(f) == 1 {
 		f = strings.Split(dir, "\\")
 	}
 	folder = f[len(f)-1]
-
-	return ls_info_inner(dir, folder)
+	return folder
 }
 
-func ls_info_inner(dir, folder string) []FileInfoWithPath {
+func lsInfoInner(dir, folder string) []FileInfoWithPath {
 	var filesInfo []FileInfoWithPath
 	files := ls(dir)
 
@@ -57,7 +62,7 @@ func ls_info_inner(dir, folder string) []FileInfoWithPath {
 
 	for _, f := range files {
 		if f.IsDir() {
-			filesInfo = append(filesInfo, ls_info_inner(dir+f.Name(), f.Name())...)
+			filesInfo = append(filesInfo, lsInfoInner(dir+f.Name(), f.Name())...)
 		} else {
 			filesInfo = append(filesInfo, FileInfoWithPath{dir + f.Name(), folder, f})
 		}

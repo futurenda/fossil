@@ -6,30 +6,33 @@ import (
 	"strings"
 )
 
-func get_file_name(s string) string {
+func getFileName(s string) string {
 	var extension = filepath.Ext(s)
 	return s[0:len(s)-len(extension)]
 }
 
-func generate(info FileInfoWithPath) string {
+func generateContent(info FileInfoWithPath) string {
 	content, _ := ioutil.ReadFile(info.path)
 	output := "package " + info.folder +
-		"\n\nconst " + strings.Title(get_file_name(info.info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\""
+		"\n\nconst " + strings.Title(getFileName(info.info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\""
 	return output
 }
 
-func process(info []FileInfoWithPath){
+func generateGoFile(info []FileInfoWithPath) []string{
+	var result []string
 	for _, i := range info {
-		content := generate(i)
-		// todo output path
-		err := ioutil.WriteFile(i.path + ".go", []byte(content), 0744)
+		content := generateContent(i)
+		// todo output dir
+		err := ioutil.WriteFile(i.path, []byte(content), 0744)
 		if err != nil {
 			panic(err)
 		}
 	}
+	return result
 }
 
 func FossilDir(dir string){
-	info := ls_info(dir)
-	process(info)
+	// todo flags
+	info := lsInfo(dir)
+	generateGoFile(info)
 }
