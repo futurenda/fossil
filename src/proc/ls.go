@@ -9,14 +9,15 @@ import (
 )
 
 type FileInfoWithPath struct {
-	Path   string
-	Folder string
-	Info   os.FileInfo
+	Path         string
+	Folder       string
 	RelativePath string
+	Name         string
+	IsDir        bool
 }
 
 func (f FileInfoWithPath) String() string {
-	return fmt.Sprintf("path: %s, folder: %s, isDir: %t", f.Path, f.Folder, f.Info.IsDir())
+	return fmt.Sprintf("path: %s, folder: %s, isDir: %t", f.Path, f.Folder, f.IsDir)
 }
 
 func lsOSFileInfo(dir string) []os.FileInfo {
@@ -28,11 +29,11 @@ func lsOSFileInfo(dir string) []os.FileInfo {
 }
 
 func Ls(dir string, filter func(string) bool, verbose bool) []FileInfoWithPath {
-	info := lsInfo(dir, "./",filter,   verbose)
+	info := lsInfo(dir, "./", filter, verbose)
 	return info
 }
 
-func getFolderNameFromDir(dir string) string{
+func getFolderNameFromDir(dir string) string {
 	folder := dir
 	// todo windows .\ ?
 	if dir == "." || dir == "./" {
@@ -65,21 +66,21 @@ func lsInfoInner(dir, folder string, relativePath string, filter func(string) bo
 	if dir == "." || dir == "./" {
 		dir = ""
 	} else {
-		if dir[len(dir) - 1:] != "/"{
+		if dir[len(dir)-1:] != "/" {
 			dir = dir + "/"
 		}
 	}
 
-	if relativePath == "." || relativePath == "./"{
+	if relativePath == "." || relativePath == "./" {
 		relativePath = ""
 	}
 
 	for _, f := range files {
 		if f.IsDir() {
-			filesInfo = append(filesInfo, lsInfoInner(dir+f.Name(), f.Name(), relativePath + "/" + f.Name(), filter, verbose)...)
+			filesInfo = append(filesInfo, lsInfoInner(dir+f.Name(), f.Name(), relativePath+"/"+f.Name(), filter, verbose)...)
 		} else {
-			if filter(f.Name()){
-				filesInfo = append(filesInfo, FileInfoWithPath{dir + f.Name(), folder, f, relativePath})
+			if filter(f.Name()) {
+				filesInfo = append(filesInfo, FileInfoWithPath{dir /*+ f.Name()*/ , folder, relativePath, f.Name(), f.IsDir()})
 			}
 		}
 	}

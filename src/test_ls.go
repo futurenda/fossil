@@ -6,11 +6,14 @@ import (
 )
 
 func main() {
-	for _, i := range proc.Ls("./examples/") {
+	sqlFileFilter := func(s string) bool {
+		return filepath.Ext(s) == ".sql"
+	}
+	for _, i := range proc.Ls("./examples/", sqlFileFilter, true) {
 		p, _ := filepath.Abs(i.Path)
 		println(p)
 	}
-	for _, i := range proc.Ls("./") {
+	for _, i := range proc.Ls("./", sqlFileFilter, true) {
 		p, _ := filepath.Abs(i.Path)
 		println(p)
 	}

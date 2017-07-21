@@ -9,5 +9,6 @@ import (
 
 func run(db *sql.DB) {
 	db.Exec(sqlFiles.Delete, 1, 2)
+	db.Exec(sqlFiles.Mutilline, 1, 2)
 	db.Exec(sqlSubFiles.Insert, 1, 2)
 }

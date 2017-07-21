@@ -6,20 +6,70 @@ import (
 	"strings"
 	"fmt"
 	"os"
+	"strconv"
+	"unicode"
 )
+
+func processContents(contents []byte, bytesMode bool) string {
+	if !bytesMode {
+		c := string(contents)
+		if !strings.Contains(c, "`") {
+			return fmt.Sprintf("`%s`", c)
+		}
+		return fmt.Sprintf("%s", strconv.Quote(string(contents)))
+	}
+	// todo
+	return "TODO"
+}
 
 func getFileName(s string) string {
 	var extension = filepath.Ext(s)
 	return s[0:len(s)-len(extension)]
 }
 
+func snakeToCamelCase(s string) string {
+	output := ""
+	for i, c := range s {
+		if (i == 0 || string(s[i-1]) == "_") && string(s[i]) != "_" {
+			output += strings.ToUpper(string(c))
+		} else if !(string(s[i]) == "_") {
+			output += strings.ToLower(string(c))
+		}
+	}
+	return output
+}
+
+func regularizeToSnakeCase(s string) string {
+	regularized := ""
+	for _, c := range s {
+		if unicode.IsLetter(c) {
+			if string(c) == strings.ToUpper(string(c)) {
+				if len(regularized) != 0{
+					regularized += "_"
+				}
+				regularized += strings.ToLower(string(c))
+			} else {
+				regularized += strings.ToLower(string(c))
+			}
+		} else {
+			if len(regularized) != 0 || string(c) == "_" {
+				regularized += "_"
+			}
+		}
+	}
+	return regularized
+}
+
 func generateContent(info FileInfoWithPath) string {
-	content, err := ioutil.ReadFile(info.Path)
+	content, err := ioutil.ReadFile(info.Path + info.Name)
 	if err != nil {
 		panic(err)
 	}
-	output := "package " + info.Folder +
-		"\n\nconst " + strings.Title(getFileName(info.Info.Name())) + " = \"" + strings.TrimSpace(string(content)) + "\"\n"
+
+	sqlVarName := snakeToCamelCase(regularizeToSnakeCase(getFileName(info.Name)))
+	sqlContent := processContents([]byte(strings.TrimSpace(string(content))), false)
+	output := fmt.Sprintf("package %s\n\nconst %s = %s\n",
+		info.Folder, sqlVarName, sqlContent)
 	return output
 }
 
@@ -31,16 +81,16 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 		outputPath = outputPath[0:len(outputPath)-1]
 	}
 	outputFolder := outputPath + i.RelativePath
-	outputPath = outputFolder + "/" + i.Info.Name() + ".go"
+	outputPath = outputFolder + "/" + regularizeToSnakeCase(getFileName(i.Name)) + ".sql.go"
 
 	if paras.Verbose {
-		fmt.Println("Output to path: " + outputPath)
+		fmt.Printf("Output to path: %s\n", outputPath)
 	}
 
 	_, err := os.Stat(outputFolder)
 	if os.IsNotExist(err) {
 		if paras.Verbose {
-			fmt.Println("Folder: " + outputFolder + " doesn't exist, creating folder.")
+			fmt.Printf("Folder: %s doesn't exist, creating folder.\n", outputFolder)
 		}
 
 		// todo should make sure that the folder creating won't conflict
@@ -88,7 +138,6 @@ func FossilDir(paras Paras) {
 	info := Ls(paras.Dir, sqlFileFilter, paras.Verbose)
 	if paras.Verbose {
 		fmt.Printf("Found %d files\n", len(info))
-
 	}
 	generateAllFile(info, paras)
 }
