@@ -4,14 +4,12 @@ import (
 	"os"
 	"flag"
 
-	"text/template"
-
 	"gopkg.in/urfave/cli.v1"
 	"github.com/zenozeng/fossil/proc"
 )
 
 func build(c *cli.Context) error {
-	files := make(map[string]string)
+	//files := make(map[string]string)
 
 	for _, input := range c.Args() {
 		proc.FossilDir(proc.Paras{
@@ -21,15 +19,15 @@ func build(c *cli.Context) error {
 			16,
 			c.String("package")})
 	}
-	const tpl = `package {{.PackageName}}
-{{range $k, $v := .Files}}
-const {{$k}} = {{$v}}
-{{end}}`
-	t := template.Must(template.New("fossil").Parse(tpl))
-	t.Execute(os.Stdout, map[string]interface{}{
-		"PackageName": c.String("package"),
-		"Files":       files,
-	})
+	//	const tpl = `package {{.PackageName}}
+	//{{range $k, $v := .Files}}
+	//const {{$k}} = {{$v}}
+	//{{end}}`
+	//	t := template.Must(template.New("fossil").Parse(tpl))
+	//	t.Execute(os.Stdout, map[string]interface{}{
+	//		"PackageName": c.String("package"),
+	//		"Files":       files,
+	//	})
 	return nil
 }
 
@@ -47,7 +45,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "package",
-					Value: "main",
+					Value: "",
 					Usage: "package name",
 				},
 				cli.StringFlag{
