@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"unicode"
+	"sync"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 func processContents(contents []byte, bytesMode bool) string {
@@ -111,20 +113,23 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 }
 
 func generateAllFile(info []FileInfoWithPath, paras Paras) {
-	pool := make(chan bool, paras.Limit)
+	bar := pb.New(len(info)).Prefix("Progress ")
+	barPool, err := pb.StartPool(bar)
+	if err != nil {
+		panic(err)
+	}
 
-	done := make(chan int)
+	wg := new(sync.WaitGroup)
 	for _, i := range info {
-		pool <- true
-		go func(info FileInfoWithPath) {
+		wg.Add(1)
+		go func(info FileInfoWithPath , bar *pb.ProgressBar) {
 			generateGoFile(info, paras)
-			<-pool
-			done <- 1
-		}(i)
+			bar.Increment()
+			wg.Done()
+		}(i , bar)
 	}
-	for i := 0; i < len(info); i++ {
-		<-done
-	}
+	wg.Wait()
+	barPool.Stop()
 }
 
 type Paras struct {
