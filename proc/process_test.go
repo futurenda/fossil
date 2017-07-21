@@ -30,8 +30,8 @@ func stringToStringTest(apply func(string) string, test []string, result []strin
 }
 
 func TestRegularToSnake(t *testing.T) {
-	test := []string{"aaa", "a.a", "AAA", "%%%A", "aaa_", "aaa_aaa", "_aaa", "aAa", "AaA"}
-	result := []string{"aaa", "a_a", "a_a_a", "a", "aaa_", "aaa_aaa", "_aaa", "a_aa", "aa_a"}
+	test := []string{"aaa", "a.a", "AAA", "%%%A", "aaa_", "aaa_aaa", "_aaa", "aAa", "AaA", "000A", "0A0", "0aA0"}
+	result := []string{"aaa", "a_a", "a_a_a", "a", "aaa_", "aaa_aaa", "_aaa", "a_aa", "aa_a", "a", "a0", "a_a0"}
 	stringToStringTest(regularizeToSnakeCase, test, result, t)
 }
 

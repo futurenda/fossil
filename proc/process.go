@@ -44,8 +44,11 @@ func snakeToCamelCase(s string) string {
 func regularizeToSnakeCase(s string) string {
 	regularized := ""
 	for _, c := range s {
-		if unicode.IsLetter(c) {
-			if string(c) == strings.ToUpper(string(c)) {
+		if len(regularized) == 0 && unicode.IsDigit(c){
+			continue
+		}
+		if unicode.IsLetter(c) || unicode.IsDigit(c) {
+			if (string(c) == strings.ToUpper(string(c))) && !unicode.IsDigit(c) {
 				if len(regularized) != 0 {
 					regularized += "_"
 				}
@@ -122,11 +125,11 @@ func generateAllFile(info []FileInfoWithPath, paras Paras) {
 	wg := new(sync.WaitGroup)
 	for _, i := range info {
 		wg.Add(1)
-		go func(info FileInfoWithPath , bar *pb.ProgressBar) {
+		go func(info FileInfoWithPath, bar *pb.ProgressBar) {
 			generateGoFile(info, paras)
 			bar.Increment()
 			wg.Done()
-		}(i , bar)
+		}(i, bar)
 	}
 	wg.Wait()
 	barPool.Stop()
@@ -138,12 +141,6 @@ type Paras struct {
 	Verbose    bool
 	Limit      int
 	Package    string
-}
-
-func NewParas() Paras {
-	Paras := Paras{}
-	Paras.Package = ""
-	return Paras
 }
 
 type FossilInfo struct {
