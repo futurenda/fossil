@@ -44,7 +44,7 @@ func regularizeToSnakeCase(s string) string {
 	for _, c := range s {
 		if unicode.IsLetter(c) {
 			if string(c) == strings.ToUpper(string(c)) {
-				if len(regularized) != 0{
+				if len(regularized) != 0 {
 					regularized += "_"
 				}
 				regularized += strings.ToLower(string(c))
@@ -60,7 +60,7 @@ func regularizeToSnakeCase(s string) string {
 	return regularized
 }
 
-func generateContent(info FileInfoWithPath) string {
+func generateContent(info FileInfoWithPath, paras Paras) string {
 	content, err := ioutil.ReadFile(info.Path + info.Name)
 	if err != nil {
 		panic(err)
@@ -68,13 +68,17 @@ func generateContent(info FileInfoWithPath) string {
 
 	sqlVarName := snakeToCamelCase(regularizeToSnakeCase(getFileName(info.Name)))
 	sqlContent := processContents([]byte(strings.TrimSpace(string(content))), false)
+	packageName := info.Folder
+	if paras.Package != "" {
+		packageName = paras.Package
+	}
 	output := fmt.Sprintf("package %s\n\nconst %s = %s\n",
-		info.Folder, sqlVarName, sqlContent)
+		packageName, sqlVarName, sqlContent)
 	return output
 }
 
 func generateGoFile(i FileInfoWithPath, paras Paras) {
-	content := generateContent(i)
+	content := generateContent(i, paras)
 	outputPath := paras.OutputPath
 	// todo Windows \
 	if outputPath[len(outputPath)-1:] == "/" {
@@ -124,20 +128,35 @@ func generateAllFile(info []FileInfoWithPath, paras Paras) {
 }
 
 type Paras struct {
-	Dir        string
+	InputPath  string
 	OutputPath string
 	Verbose    bool
 	Limit      int
+	Package    string
 }
 
-func FossilDir(paras Paras) {
-	// todo flags
+func NewParas() Paras {
+	Paras := Paras{}
+	Paras.Package = ""
+	return Paras
+}
+
+type FossilInfo struct {
+	Count int
+}
+
+func FossilDir(paras Paras) FossilInfo {
+	if paras.OutputPath == "" {
+		paras.OutputPath = paras.InputPath
+	}
+
 	sqlFileFilter := func(s string) bool {
 		return filepath.Ext(s) == ".sql"
 	}
-	info := Ls(paras.Dir, sqlFileFilter, paras.Verbose)
+	info := Ls(paras.InputPath, sqlFileFilter, paras.Verbose)
 	if paras.Verbose {
 		fmt.Printf("Found %d files\n", len(info))
 	}
 	generateAllFile(info, paras)
+	return FossilInfo{len(info)}
 }
