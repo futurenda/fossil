@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"unicode"
-	"sync"
 	"gopkg.in/cheggaaa/pb.v1"
+	"time"
+	"sync"
 )
 
 func processContents(contents []byte, bytesMode bool) string {
@@ -27,42 +27,6 @@ func processContents(contents []byte, bytesMode bool) string {
 func getFileName(s string) string {
 	var extension = filepath.Ext(s)
 	return s[0:len(s)-len(extension)]
-}
-
-func snakeToCamelCase(s string) string {
-	output := ""
-	for i, c := range s {
-		if (i == 0 || string(s[i-1]) == "_") && string(s[i]) != "_" {
-			output += strings.ToUpper(string(c))
-		} else if !(string(s[i]) == "_") {
-			output += strings.ToLower(string(c))
-		}
-	}
-	return output
-}
-
-func regularizeToSnakeCase(s string) string {
-	regularized := ""
-	for _, c := range s {
-		if len(regularized) == 0 && unicode.IsDigit(c){
-			continue
-		}
-		if unicode.IsLetter(c) || unicode.IsDigit(c) {
-			if (string(c) == strings.ToUpper(string(c))) && !unicode.IsDigit(c) {
-				if len(regularized) != 0 {
-					regularized += "_"
-				}
-				regularized += strings.ToLower(string(c))
-			} else {
-				regularized += strings.ToLower(string(c))
-			}
-		} else {
-			if len(regularized) != 0 || string(c) == "_" {
-				regularized += "_"
-			}
-		}
-	}
-	return regularized
 }
 
 func generateContent(info FileInfoWithPath, paras Paras) string {
@@ -121,17 +85,22 @@ func generateAllFile(info []FileInfoWithPath, paras Paras) {
 	if err != nil {
 		panic(err)
 	}
-
+	chans := make(chan bool, paras.Limit)
 	wg := new(sync.WaitGroup)
+
 	for _, i := range info {
+		chans <- true
 		wg.Add(1)
 		go func(info FileInfoWithPath, bar *pb.ProgressBar) {
 			generateGoFile(info, paras)
 			bar.Increment()
+			time.Sleep(5 * time.Second)
+			<-chans
 			wg.Done()
 		}(i, bar)
 	}
 	wg.Wait()
+
 	barPool.Stop()
 }
 
