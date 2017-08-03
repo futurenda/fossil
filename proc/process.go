@@ -66,7 +66,6 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 			fmt.Printf("Folder: %s doesn't exist, creating folder.\n", outputFolder)
 		}
 
-		// todo should make sure that the folder creating won't conflict
 		err = os.MkdirAll(outputFolder, 0644)
 		if err != nil {
 			panic(err)
@@ -117,6 +116,10 @@ type FossilInfo struct {
 }
 
 func FossilDir(paras Paras) FossilInfo {
+	if paras.Verbose{
+		fmt.Printf("Input from %s, output to %s, limit %d.", paras.InputPath, paras.OutputPath, paras.Limit)
+	}
+
 	if paras.OutputPath == "" {
 		paras.OutputPath = paras.InputPath
 	}

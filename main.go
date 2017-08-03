@@ -5,18 +5,18 @@ import (
 	"flag"
 
 	"gopkg.in/urfave/cli.v1"
-	"github.com/zenozeng/fossil/proc"
+	. "github.com/zenozeng/fossil/proc"
 )
 
 func build(c *cli.Context) error {
 	//files := make(map[string]string)
 
 	for _, input := range c.Args() {
-		proc.FossilDir(proc.Paras{
+		FossilDir(Paras{
 			input,
 			c.String("output"),
 			c.Bool("verbose"),
-			16,
+			c.Int("max_io_goroutines"),
 			c.String("package")})
 	}
 	//	const tpl = `package {{.PackageName}}
@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 	app := cli.NewApp()
 	app.Name = "fossil"
-	app.Version = "0.0.1"
+	app.Version = "1.0.0"
 	app.Usage = "Embedding text file into go constants"
 
 	app.Commands = []cli.Command{
@@ -55,10 +55,16 @@ func main() {
 				},
 				cli.BoolFlag{
 					Name: "bytes",
+					Usage: "unimplemented",
 				},
 				cli.BoolFlag{
 					Name:  "verbose",
-					Usage: "",
+					Usage: "print verbose information",
+				},
+				cli.IntFlag{
+					Name: "max_io_goroutines, m",
+					Usage: "limit max io goroutines",
+					Value: 16,
 				},
 			},
 			Action: build,
