@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os"
 	"flag"
+	"os"
 
-	"gopkg.in/urfave/cli.v1"
 	. "github.com/zenozeng/fossil/proc"
+	"gopkg.in/urfave/cli.v1"
 )
 
 func build(c *cli.Context) error {
@@ -19,15 +19,6 @@ func build(c *cli.Context) error {
 			c.Int("max_io_goroutines"),
 			c.String("package")})
 	}
-	//	const tpl = `package {{.PackageName}}
-	//{{range $k, $v := .Files}}
-	//const {{$k}} = {{$v}}
-	//{{end}}`
-	//	t := template.Must(template.New("fossil").Parse(tpl))
-	//	t.Execute(os.Stdout, map[string]interface{}{
-	//		"PackageName": c.String("package"),
-	//		"Files":       files,
-	//	})
 	return nil
 }
 
@@ -54,7 +45,7 @@ func main() {
 					Usage: "output dir",
 				},
 				cli.BoolFlag{
-					Name: "bytes",
+					Name:  "bytes",
 					Usage: "unimplemented",
 				},
 				cli.BoolFlag{
@@ -62,7 +53,7 @@ func main() {
 					Usage: "print verbose information",
 				},
 				cli.IntFlag{
-					Name: "max_io_goroutines, m",
+					Name:  "max_io_goroutines, m",
 					Usage: "limit max io goroutines",
 					Value: 16,
 				},

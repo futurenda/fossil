@@ -1,11 +1,11 @@
 package proc
 
 import (
-	"os"
 	"fmt"
 	"io/ioutil"
-	"strings"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 type FileInfoWithPath struct {
@@ -80,7 +80,7 @@ func lsInfoInner(dir, folder string, relativePath string, filter func(string) bo
 			filesInfo = append(filesInfo, lsInfoInner(dir+f.Name(), f.Name(), relativePath+"/"+f.Name(), filter, verbose)...)
 		} else {
 			if filter(f.Name()) {
-				filesInfo = append(filesInfo, FileInfoWithPath{dir /*+ f.Name()*/ , folder, relativePath, f.Name(), f.IsDir()})
+				filesInfo = append(filesInfo, FileInfoWithPath{dir /*+ f.Name()*/, folder, relativePath, f.Name(), f.IsDir()})
 			}
 		}
 	}

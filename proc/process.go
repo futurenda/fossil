@@ -1,15 +1,15 @@
 package proc
 
 import (
-	"io/ioutil"
-	"path/filepath"
-	"strings"
 	"fmt"
-	"os"
-	"strconv"
 	"gopkg.in/cheggaaa/pb.v1"
-	"time"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 )
 
 func processContents(contents []byte, bytesMode bool) string {
@@ -26,7 +26,7 @@ func processContents(contents []byte, bytesMode bool) string {
 
 func getFileName(s string) string {
 	var extension = filepath.Ext(s)
-	return s[0:len(s)-len(extension)]
+	return s[0 : len(s)-len(extension)]
 }
 
 func generateContent(info FileInfoWithPath, paras Paras) string {
@@ -51,7 +51,7 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 	outputPath := paras.OutputPath
 	// todo Windows \
 	if outputPath[len(outputPath)-1:] == "/" {
-		outputPath = outputPath[0:len(outputPath)-1]
+		outputPath = outputPath[0 : len(outputPath)-1]
 	}
 	outputFolder := outputPath + i.RelativePath
 	outputPath = outputFolder + "/" + regularizeToSnakeCase(getFileName(i.Name)) + ".sql.go"
@@ -116,7 +116,7 @@ type FossilInfo struct {
 }
 
 func FossilDir(paras Paras) FossilInfo {
-	if paras.Verbose{
+	if paras.Verbose {
 		fmt.Printf("Input from %s, output to %s, limit %d.", paras.InputPath, paras.OutputPath, paras.Limit)
 	}
 

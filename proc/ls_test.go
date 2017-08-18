@@ -1,8 +1,8 @@
 package proc
 
 import (
-	"testing"
 	"path/filepath"
+	"testing"
 )
 
 func TestLs(t *testing.T) {

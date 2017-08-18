@@ -1,8 +1,8 @@
 package proc
 
 import (
-	"testing"
 	"io/ioutil"
+	"testing"
 )
 
 func TestProcess(t *testing.T) {
