@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/zenozeng/fossil/proc"
+	"github.com/zenozeng/fossil/fossil"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -12,7 +12,7 @@ func build(c *cli.Context) error {
 	//files := make(map[string]string)
 
 	for _, input := range c.Args() {
-		proc.FossilDir(proc.FossilParas{
+		fossil.FossilDir(fossil.FossilParas{
 			input,
 			c.String("output"),
 			c.Bool("verbose"),
