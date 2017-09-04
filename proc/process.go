@@ -66,7 +66,7 @@ func generateGoFile(i FileInfoWithPath, paras FossilParas) {
 			fmt.Printf("Folder: %s doesn't exist, creating folder.\n", outputFolder)
 		}
 
-		err = os.MkdirAll(outputFolder, 0644)
+		err = os.MkdirAll(outputFolder, 0755)
 		if err != nil {
 			panic(err)
 		}

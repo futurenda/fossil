@@ -28,3 +28,4 @@ _testmain.go
 
 .idea/
 /vendor
+/examples/output

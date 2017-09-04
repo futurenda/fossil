@@ -1,3 +1,0 @@
-package sql
-
-const UnderScore = ``
