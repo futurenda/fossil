@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	. "github.com/zenozeng/fossil/proc"
+	"github.com/zenozeng/fossil/proc"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -12,7 +12,7 @@ func build(c *cli.Context) error {
 	//files := make(map[string]string)
 
 	for _, input := range c.Args() {
-		FossilDir(Paras{
+		proc.FossilDir(proc.FossilParas{
 			input,
 			c.String("output"),
 			c.Bool("verbose"),
@@ -49,7 +49,7 @@ func main() {
 					Usage: "unimplemented",
 				},
 				cli.BoolFlag{
-					Name:  "verbose",
+					Name:  "verbose, v",
 					Usage: "print verbose information",
 				},
 				cli.IntFlag{

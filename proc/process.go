@@ -29,7 +29,7 @@ func getFileName(s string) string {
 	return s[0 : len(s)-len(extension)]
 }
 
-func generateContent(info FileInfoWithPath, paras Paras) string {
+func generateContent(info FileInfoWithPath, paras FossilParas) string {
 	content, err := ioutil.ReadFile(info.Path + info.Name)
 	if err != nil {
 		panic(err)
@@ -46,7 +46,7 @@ func generateContent(info FileInfoWithPath, paras Paras) string {
 	return output
 }
 
-func generateGoFile(i FileInfoWithPath, paras Paras) {
+func generateGoFile(i FileInfoWithPath, paras FossilParas) {
 	content := generateContent(i, paras)
 	outputPath := paras.OutputPath
 	// todo Windows \
@@ -78,7 +78,7 @@ func generateGoFile(i FileInfoWithPath, paras Paras) {
 	}
 }
 
-func generateAllFile(info []FileInfoWithPath, paras Paras) {
+func generateAllFile(info []FileInfoWithPath, paras FossilParas) {
 	bar := pb.New(len(info)).Prefix("Progress ")
 	barPool, err := pb.StartPool(bar)
 	if err != nil {
@@ -103,7 +103,7 @@ func generateAllFile(info []FileInfoWithPath, paras Paras) {
 	barPool.Stop()
 }
 
-type Paras struct {
+type FossilParas struct {
 	InputPath  string
 	OutputPath string
 	Verbose    bool
@@ -115,7 +115,7 @@ type FossilInfo struct {
 	Count int
 }
 
-func FossilDir(paras Paras) FossilInfo {
+func FossilDir(paras FossilParas) FossilInfo {
 	if paras.Verbose {
 		fmt.Printf("Input from %s, output to %s, limit %d.", paras.InputPath, paras.OutputPath, paras.Limit)
 	}
@@ -127,7 +127,7 @@ func FossilDir(paras Paras) FossilInfo {
 	sqlFileFilter := func(s string) bool {
 		return filepath.Ext(s) == ".sql"
 	}
-	info := Ls(paras.InputPath, sqlFileFilter, paras.Verbose)
+	info := ls(paras.InputPath, sqlFileFilter, paras.Verbose)
 	if paras.Verbose {
 		fmt.Printf("Found %d files\n", len(info))
 	}

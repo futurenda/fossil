@@ -28,7 +28,7 @@ func lsOSFileInfo(dir string) []os.FileInfo {
 	return files
 }
 
-func Ls(dir string, filter func(string) bool, verbose bool) []FileInfoWithPath {
+func ls(dir string, filter func(string) bool, verbose bool) []FileInfoWithPath {
 	info := lsInfo(dir, "./", filter, verbose)
 	return info
 }
