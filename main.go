@@ -17,7 +17,8 @@ func build(c *cli.Context) error {
 			c.String("output"),
 			c.Bool("verbose"),
 			c.Int("max_io_goroutines"),
-			c.String("package")})
+			c.String("package"),
+			c.String("extension")})
 	}
 	return nil
 }
@@ -56,6 +57,11 @@ func main() {
 					Name:  "max_io_goroutines, m",
 					Usage: "limit max io goroutines",
 					Value: 16,
+				},
+				cli.StringFlag{
+					Name:  "extension, ext",
+					Usage: "file type to process",
+					Value: "sql",
 				},
 			},
 			Action: build,

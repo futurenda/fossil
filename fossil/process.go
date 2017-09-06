@@ -35,14 +35,14 @@ func generateContent(info FileInfoWithPath, paras FossilParas) string {
 		panic(err)
 	}
 
-	sqlVarName := snakeToCamelCase(regularizeToSnakeCase(getFileName(info.Name)))
-	sqlContent := processContents([]byte(strings.TrimSpace(string(content))), false)
+	outputVarName := snakeToCamelCase(regularizeToSnakeCase(getFileName(info.Name)))
+	outputContent := processContents([]byte(strings.TrimSpace(string(content))), false)
 	packageName := info.Folder
 	if paras.Package != "" {
 		packageName = paras.Package
 	}
 	output := fmt.Sprintf("package %s\n\nconst %s = %s\n",
-		packageName, sqlVarName, sqlContent)
+		packageName, outputVarName, outputContent)
 	return output
 }
 
@@ -54,7 +54,7 @@ func generateGoFile(i FileInfoWithPath, paras FossilParas) {
 		outputPath = outputPath[0 : len(outputPath)-1]
 	}
 	outputFolder := outputPath + i.RelativePath
-	outputPath = outputFolder + "/" + regularizeToSnakeCase(getFileName(i.Name)) + ".sql.go"
+	outputPath = outputFolder + "/" + regularizeToSnakeCase(getFileName(i.Name)) + "." + paras.Ext + ".go"
 
 	if paras.Verbose {
 		fmt.Printf("Output to path: %s\n", outputPath)
@@ -109,6 +109,7 @@ type FossilParas struct {
 	Verbose    bool
 	Limit      int
 	Package    string
+	Ext        string
 }
 
 type FossilInfo struct {
@@ -124,10 +125,10 @@ func FossilDir(paras FossilParas) FossilInfo {
 		paras.OutputPath = paras.InputPath
 	}
 
-	sqlFileFilter := func(s string) bool {
-		return filepath.Ext(s) == ".sql"
+	fileTypeFilter := func(s string) bool {
+		return filepath.Ext(s) == "." + paras.Ext
 	}
-	info := ls(paras.InputPath, sqlFileFilter, paras.Verbose)
+	info := ls(paras.InputPath, fileTypeFilter, paras.Verbose)
 	if paras.Verbose {
 		fmt.Printf("Found %d files\n", len(info))
 	}
