@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/zenozeng/fossil/fossil"
+	"github.com/futurenda/fossil/fossil"
 	"gopkg.in/urfave/cli.v1"
 )
 
