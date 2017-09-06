@@ -20,6 +20,6 @@ jobs:
       - type: shell
         name: go test
         command: |
-          cd fossil
+          cd process
           go test
           cd ..
