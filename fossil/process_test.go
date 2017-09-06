@@ -6,7 +6,7 @@ import (
 )
 
 func TestProcess(t *testing.T) {
-	FossilDir(FossilParas{"../examples/input/", "../examples/output", false, 16, ""})
+	FossilDir(FossilParas{"../examples/input/", "../examples/output", false, 16, "", "sql"})
 	outputs := ls("../examples/output", func(string) bool { return true }, false)
 
 	var out []string
