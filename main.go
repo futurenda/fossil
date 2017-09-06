@@ -9,8 +9,6 @@ import (
 )
 
 func build(c *cli.Context) error {
-	//files := make(map[string]string)
-
 	for _, input := range c.Args() {
 		fossil.FossilDir(fossil.FossilParas{
 			input,
