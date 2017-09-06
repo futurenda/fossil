@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: futurenda/buildpack:v1.27.0
+
+    working_directory: /go/src/github.com/futurenda/fossil
+
+    steps:
+      - checkout
+
+      - type: shell
+        command: |
+          set -e
+          if [ ! -d vendor ]; then
+            go get -u github.com/golang/dep/cmd/dep
+            dep ensure -v
+          fi
+
+      - type: shell
+        name: go test
+        command: |
+          cd process
+          go test
+          cd ..

@@ -19,7 +19,7 @@ input
 ```
 
 ```bash
-fossil build input
+fossil build input -o output
 ```
 
 ```bash
@@ -39,8 +39,8 @@ output
 package main
 
 import (
-	sqlFiles "github.com/zenozeng/fossil/examples/output/sql"
-	sqlSubFiles "github.com/zenozeng/fossil/examples/output/sql/sub"
+	sqlFiles "github.com/futurenda/fossil/examples/output/sql"
+	sqlSubFiles "github.com/futurenda/fossil/examples/output/sql/sub"
 
 	"database/sql"
 )

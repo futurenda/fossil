@@ -1,45 +1,32 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-
 	"flag"
+	"os"
 
-	"io/ioutil"
-
-	"fmt"
-	"strconv"
-	"strings"
-	"text/template"
-
+	"github.com/futurenda/fossil/process"
 	"gopkg.in/urfave/cli.v1"
 )
 
-func processContents(contents []byte, bytesMode bool) string {
-	if !bytesMode {
-		c := string(contents)
-		if !strings.Contains(c, "`") {
-			return fmt.Sprintf("`%s`", c)
-		}
-		return fmt.Sprintf("%s", strconv.Quote(string(contents)))
+func build(c *cli.Context) error {
+	for _, input := range c.Args() {
+		process.FossilDir(process.FossilParas{
+			input,
+			c.String("output"),
+			c.Bool("verbose"),
+			c.Int("max_io_goroutines"),
+			c.String("package"),
+			c.String("extension")})
 	}
-	return "TODO"
+	return nil
 }
 
 func main() {
 	flag.Parse()
 	app := cli.NewApp()
 	app.Name = "fossil"
-	app.Version = "0.0.1"
+	app.Version = "1.0.0"
 	app.Usage = "Embedding text file into go constants"
-
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "verbose",
-			Usage: "",
-		},
-	}
 
 	app.Commands = []cli.Command{
 		{
@@ -48,48 +35,34 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "package",
-					Value: "main",
+					Value: "",
 					Usage: "package name",
 				},
+				cli.StringFlag{
+					Name:  "output, o",
+					Value: "",
+					Usage: "output dir",
+				},
 				cli.BoolFlag{
-					Name: "bytes",
+					Name:  "bytes",
+					Usage: "unimplemented",
+				},
+				cli.BoolFlag{
+					Name:  "verbose, v",
+					Usage: "print verbose information",
+				},
+				cli.IntFlag{
+					Name:  "max_io_goroutines, m",
+					Usage: "limit max io goroutines",
+					Value: 16,
+				},
+				cli.StringFlag{
+					Name:  "extension, ext",
+					Usage: "file type to process",
+					Value: "sql",
 				},
 			},
-			Action: func(c *cli.Context) error {
-				files := make(map[string]string)
-				for _, pattern := range c.Args() {
-					matches, err := filepath.Glob(pattern)
-					if err != nil {
-						return err
-					}
-					for _, file := range matches {
-						fileInfo, err := os.Stat(file)
-						if err != nil {
-							return err
-						}
-						fileMode := fileInfo.Mode()
-						if fileMode.IsDir() {
-							continue
-						}
-						contents, err := ioutil.ReadFile(file)
-						if err != nil {
-							return err
-						}
-						key := strings.ToTitle(strings.Split(file, ".")[0])
-						files[key] = processContents(contents, c.Bool("bytes"))
-					}
-				}
-				const tpl = `package {{.PackageName}}
-{{range $k, $v := .Files}}
-const {{$k}} = {{$v}}
-{{end}}`
-				t := template.Must(template.New("fossil").Parse(tpl))
-				t.Execute(os.Stdout, map[string]interface{}{
-					"PackageName": c.String("package"),
-					"Files":       files,
-				})
-				return nil
-			},
+			Action: build,
 		},
 	}
 

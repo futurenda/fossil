@@ -1,3 +1,3 @@
 package sql
 
-const Delete = ""
+const Delete = ``

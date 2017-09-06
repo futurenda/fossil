@@ -1,3 +1,3 @@
 package sub
 
-const Insert = ""
+const Insert = ``
