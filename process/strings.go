@@ -1,4 +1,4 @@
-package fossil
+package process
 
 import (
 	"strings"
