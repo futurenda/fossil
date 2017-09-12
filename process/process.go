@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 func processContents(contents []byte, bytesMode bool) string {
@@ -79,28 +78,22 @@ func generateGoFile(i FileInfoWithPath, paras FossilParas) {
 }
 
 func generateAllFile(info []FileInfoWithPath, paras FossilParas) {
-	bar := pb.New(len(info)).Prefix("Progress ")
-	barPool, err := pb.StartPool(bar)
-	if err != nil {
-		panic(err)
-	}
-	chans := make(chan bool, paras.Limit)
+	bar := pb.StartNew(len(info)).Prefix("Progress ")
+	goroutineLimiter := make(chan bool, paras.Limit)
 	wg := new(sync.WaitGroup)
 
 	for _, i := range info {
-		chans <- true
+		goroutineLimiter <- true
 		wg.Add(1)
 		go func(info FileInfoWithPath, bar *pb.ProgressBar) {
 			generateGoFile(info, paras)
 			bar.Increment()
-			time.Sleep(5 * time.Second)
-			<-chans
+			<-goroutineLimiter
 			wg.Done()
 		}(i, bar)
 	}
 	wg.Wait()
-
-	barPool.Stop()
+	bar.FinishPrint("Process done.")
 }
 
 type FossilParas struct {
@@ -126,7 +119,7 @@ func FossilDir(paras FossilParas) FossilInfo {
 	}
 
 	fileTypeFilter := func(s string) bool {
-		return filepath.Ext(s) == "." + paras.Ext
+		return filepath.Ext(s) == "."+paras.Ext
 	}
 	info := ls(paras.InputPath, fileTypeFilter, paras.Verbose)
 	if paras.Verbose {
